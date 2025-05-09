@@ -8,7 +8,7 @@ from prepare.DTW_O_use import dtw_o_distance
 model = YOLO("yolov8l-pose.pt")  # pretrained YOLO11n model
 
 # Run a video that needs to be detected
-results = model(r"D:\KK\bdjdatastes\DTW对比实验\第一个+二+三动作\5.mp4", stream=True)  # return a generator of Results objects
+results = model(r"D:\KK\bdjdatastes\5.mp4", stream=True)  # return a generator of Results objects
 h=0
 keypoints_array = []
 count = 0  #It is used to record the number of frames in which no human was detected
@@ -53,8 +53,8 @@ keypoints_array = np.array(keypoints_array)
 # print(keypoints_array)
 
 
-#保存yolo跑出的数据
-# # 关键点名称列表
+#Save the data run by yolo
+# # List of key point names
 # keypoint_names = [
 #     "nose-x", "nose-y", "l-eye-x", "l-eye-y", "r-eye-x", "r-eye-y",
 #     "l-ear-x", "l-ear-y", "r-ear-x", "r-ear-y", "l-shoulder-x", "l-shoulder-y",
@@ -65,9 +65,9 @@ keypoints_array = np.array(keypoints_array)
 # ]
 # df = pd.DataFrame(keypoints_array, columns=keypoint_names)
 #
-# # 保存为Excel文件
-# df.to_excel(r"D:\KK\bdjdatastes\DTW对比实验\第一个+二+三动作\5.xlsx", index=False, engine='openpyxl')
+# # Save as an Excel file
+# df.to_excel(r"D:\KK\bdjdatastes\5.xlsx", index=False, engine='openpyxl')
 #
-# print("关键点数据已保存到 'xlsx' 文件中。有{}帧没有检测到人".format(count))
+# print("The key point data has been saved to the 'xlsx' file. There are {} frames where no people were detected".format(count))
 
 dtw_o_distance(keypoints_array)  #Calculation score
