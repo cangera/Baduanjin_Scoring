@@ -120,7 +120,7 @@ class MWindow(QtWidgets.QMainWindow):
        
         self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         if not self.cap.isOpened():
-            print("1号摄像头不能打开")
+            print("Camera No. 1 cannot be turned on")
             return
 
         if self.timer_camera.isActive() == False:  # If the timer is not started
@@ -145,7 +145,7 @@ class MWindow(QtWidgets.QMainWindow):
         # The video color is converted back to RGB, OpenCV images as BGR
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  
         qImage = QtGui.QImage(frame.data, frame.shape[1], frame.shape[0],
-                                 QtGui.QImage.Format_RGB888)  # 
+                                 QtGui.QImage.Format_RGB888)  
         
         self.label_ori_video.setPixmap(QtGui.QPixmap.fromImage(qImage)) 
 
