@@ -88,34 +88,33 @@ def singles_sim(a, b):
     return Avg_s
 
 def draw_pic(list, count = 1):
-    # 设置中文字体
-    plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置为黑体
-    plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+   
+    plt.rcParams['font.sans-serif'] = ['SimHei']  
+    plt.rcParams['axes.unicode_minus'] = False  
 
-    # 绘制图形
-    plt.title("单帧相似度对比结果")
-    plt.xlabel("肢体向量段")
-    plt.ylabel("分数")
+    # Draw graphics
+    plt.title("Single-frame similarity comparison result")
+    plt.xlabel("Limb vector segment")
+    plt.ylabel("score")
     list = list[:-1]
     y = list/count
-    # 示例数据
+   
     x = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13', 'v14', 'v15', 'v16']
 
-    # 绘制柱状图
+    # Draw the bar chart
     plt.bar(x, y)
 
-    # 给定目录
-    output_directory = r'D:\KK\bdjdatastes'  # 替换为你希望保存图形的文件夹路径
+    # Given directory
+    output_directory = r'D:\KK\bdjdatastes' 
     if not os.path.exists(output_directory):
-        os.makedirs(output_directory)  # 如果目录不存在则创建
+        os.makedirs(output_directory)  
 
-    # 保存图像到指定目录
-    output_file = os.path.join(output_directory, 'similarity_comparison.png')  # 设置文件名和路径
+    # Save the image to the specified directory
+    output_file = os.path.join(output_directory, 'similarity_comparison.png')  
     plt.savefig(output_file)
 
-    print(f"图像已保存到 {output_file}")
+    print(f"The image has been saved to {output_file}")
 
-    # 显示图形
     plt.show()
 
     return 0
