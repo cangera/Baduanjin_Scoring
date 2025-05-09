@@ -8,15 +8,15 @@ model = YOLO(r"D:\KK\ultralytics-main_first\yolov8l-pose.pt")  # pretrained YOLO
 img1_path = r"D:\KK\bdjdatastes\add_studies\Pose_structure_modeling\imgs\1.jpg"
 img2_path = r"D:\KK\bdjdatastes\add_studies\Pose_structure_modeling\imgs\9526.jpg"
 
-# 读取图片为灰度图
+# Read the picture as a grayscale image
 img1 = cv2.imread(img1_path, cv2.IMREAD_GRAYSCALE)
 img2 = cv2.imread(img2_path, cv2.IMREAD_GRAYSCALE)
 
-# 检查图片是否加载成功
+# Check whether the picture has been loaded successfully
 if img1 is None or img2 is None:
-    raise ValueError("其中一张图片路径错误或图片无法读取，请检查路径是否正确！")
+    raise ValueError("One of the pictures has an incorrect path or cannot be read. Please check if the path is correct!")
 
-# 大小统一
+# Uniform size
 img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]))
 
 def normalization(result):
@@ -55,39 +55,39 @@ def calc_ssim(imageA, imageB):
     s, _ = ssim(imageA, imageB, full=True)
     return s
 
-# 4. Cosine Similarity（将图像拉平成向量）
+# 4. Cosine Similarity（Flatten the image into a vector）
 def cosine_sim(imageA, imageB):
     vecA = imageA.flatten().reshape(1, -1)
     vecB = imageB.flatten().reshape(1, -1)
     return cosine_similarity(vecA, vecB)[0][0]
 
 def cosine(img1, img2):
-    # 拉平为向量并归一化（防止像素强度影响）
+    # Flatten into a vector and normalize (to prevent the influence of pixel intensity)
     vec1 = img1.flatten().reshape(1, -1).astype(np.float32)
     vec2 = img2.flatten().reshape(1, -1).astype(np.float32)
 
-    # 可选归一化
+    #Optional normalization
     vec1 /= np.linalg.norm(vec1)
     vec2 /= np.linalg.norm(vec2)
 
-    # 计算余弦相似度
+    # Calculate the cosine similarity
     cos_sim = cosine_similarity(vec1, vec2)[0][0]
     return cos_sim
 def Cosine_Value(a, b):
-    dot_product = np.dot(a, b)  # 向量点积
-    norm_a = np.linalg.norm(a)  # 计算 array_a 的 L2 范数
-    norm_b = np.linalg.norm(b)  # 计算 array_b 的 L2 范数
+    dot_product = np.dot(a, b)  
+    norm_a = np.linalg.norm(a)  
+    norm_b = np.linalg.norm(b)  
     if norm_a == 0 or norm_b == 0:
         return 0.0
     cosine_value = dot_product / (norm_a * norm_b)
     return cosine_value
 def singles_sim(a, b):
-    # 检查数组长度是否为34
+    
 
     if len(a) != 34 or len(b) != 34:
-        raise ValueError("输入的数组长度应为34")
+        raise ValueError("The length of the input array should be 34")
 
-    #x对应的为下标×2 ， y为×2＋1
+    # x corresponds to the subscript ×2, and y is ×2+1
     a_neck_x = (a[10] + a[12])/2
     a_neck_y = (a[11] + a[13])/2
     b_neck_x = (b[10] + b[12]) / 2
@@ -130,7 +130,8 @@ def singles_sim(a, b):
     b_v15 = np.array([b[24] - b[28], b[25] - b[29]])
     a_v16 = np.array([a[28] - a[32], a[29] - a[33]])
     b_v16 = np.array([b[28] - b[32], b[29] - b[33]])
-    # 计算余弦相似度
+    
+    # Calculate the cosine similarity
 
     s_v1 = Cosine_Value(a_v1, b_v1)
     s_v2 = Cosine_Value(a_v2, b_v2)
@@ -152,13 +153,6 @@ def singles_sim(a, b):
 
     Avg_s = s_v1*0.1135 + s_v2*0.0519 + s_v3*0.0256 + s_v4*0.0804 + s_v5*0.098 + s_v6*0.0256 + s_v7*0.0759 + s_v8*0.0911 + s_v9*0.0607 + s_v10*0.0594 +s_v11*0.0156 + s_v12*0.0156 + s_v13*0.0624 + s_v14*0.0802 + s_v15*0.0630 +s_v16*0.0726
     return Avg_s
-# 5. 你的方法（假设是compare_custom(img1, img2)）
-# def compare_custom(img1, img2):
-#     # 这里你可以调用你的人体骨架+相似度打分的函数
-#     # 返回一个数值相似度评分
-#     return 0.82  # 示例占位值
-
-# === 输出所有相似度指标 ===
 
 re1 = model(img1_path)
 re2 = model(img2_path)
@@ -168,7 +162,7 @@ re2_norm = normalization(re2[0])
 
 
 
-print("🔍 图像相似度对比指标：")
+print("🔍 Image similarity comparison index：")
 print(f"✅ MSE: {mse(img1, img2):.4f}")
 print(f"✅ PSNR: {psnr(img1, img2):.2f} dB")
 print(f"✅ SSIM: {calc_ssim(img1, img2):.4f}")
