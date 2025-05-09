@@ -18,7 +18,7 @@ def dtw_o_distance(array_b):
         for i in range(0, len(path), 50):
                 count = 1
                 sum = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-                a_idx, b_idx = path[i]  # 提取 index
+                a_idx, b_idx = path[i]  # Extract index
                 s = np.array(singles_sim(array_a[a_idx], array_b[b_idx]))
                 sum = sum + s
 
@@ -30,14 +30,14 @@ def dtw_o_distance(array_b):
         # draw_pic(sum, count)
         fin_score = 0.7 * Overall_similarity_score + 0.3 * cosin_score
         # singles_sim(array_a[50],array_b[50])
-        print("整体的欧几里得距离:", distance)
-        print("整体的得分:", Overall_similarity_score)
-        print("余弦值的得分:", cosin_score)
-        print("融合得分：", fin_score)
+        print("The overall Euclidean distance:", distance)
+        print("Overall score:", Overall_similarity_score)
+        print("The score of the keyframe:", cosin_score)
+        print("Fusion score：", fin_score)
         return fin_score, sum, count
 
 if __name__ == '__main__':
-        file_path_b = r'D:\KK\bdjdatastes\add_studies\最终实验\初学者_60.xlsx'
+        file_path_b = r'D:\KK\bdjdatastes\add_studies\60.xlsx'
         data_b = pd.read_excel(file_path_b)
         array_b = data_b.values  # shape: (m_samples, n_features)
         dtw_o_distance(array_b)
