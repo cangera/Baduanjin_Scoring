@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 
 def singles_sim(a):
     if len(a) != 34:
-        raise ValueError("输入的数组长度应为34")
+        raise ValueError("The length of the input array should be 34")
 
     a_neck_x = (a[10] + a[12])/2
     a_neck_y = (a[11] + a[13])/2
@@ -53,12 +53,12 @@ def compute_motion_distribution(array_a):
     total_motion = np.sum(segment_motion_sums)
     motion_distribution = segment_motion_sums / total_motion
 
-    # 输出运动量结果
-    print("\n每段向量的运动量与占比：")
+    # Output the result of the amount of exercise
+    print("\nThe amount of motion and proportion of each vector segment:")
     for i in range(n_segments):
-        print(f"a_v{i+1}: 总运动量 = {segment_motion_sums[i]:.4f}, 占比 = {motion_distribution[i]*100:.2f}%")
+        print(f"a_v{i+1}:Total exercise volume= {segment_motion_sums[i]:.4f}, Proportion = {motion_distribution[i]*100:.2f}%")
 
-    print(f"\n总运动量: {total_motion:.4f}")
+    print(f"\nTotal exercise volume: {total_motion:.4f}")
 
     return segment_motion_sums, total_motion, motion_distribution
 
@@ -79,5 +79,5 @@ if __name__ == '__main__':
 
     segment_motion_sums, total_motion, motion_distribution = compute_motion_distribution(array_a)
 
-    # 可视化
+    # Visualization
     plot_motion_distribution(motion_distribution)
