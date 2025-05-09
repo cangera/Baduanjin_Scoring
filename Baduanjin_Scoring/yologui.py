@@ -1,4 +1,4 @@
-#这个pt页面是一个初代版本，还未优化，运算速度可能会比较慢，要测试的话可以去use.py中
+#This pt page is an initial version and has not been optimized yet. The operation speed might be relatively slow. If you want to test it, you can go to use.py
 
 import torch
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 
 from prepare.DTW_O_use import dtw_o_distance
 
-# 不然每次YOLO处理都会输出调试信息
+
 os.environ['YOLO_VERBOSE'] = 'False'
 from ultralytics import YOLO 
 
@@ -24,7 +24,7 @@ class MWindow(QtWidgets.QMainWindow):
         self.keypoints_array = []
         self.list = []
         self.count = 0
-        # 设置界面
+        # Set interface
         self.setupUI()
 
         self.camBtn.clicked.connect(self.startCamera)
@@ -34,31 +34,31 @@ class MWindow(QtWidgets.QMainWindow):
         self.score.clicked.connect(self.jisuan)
         self.biaoji = []
 
-        # 定义定时器，用于控制显示摄像头视频的帧率
+       
         self.timer_camera = QtCore.QTimer()
-        # 定时到了，回调 self.show_camera
+       
         self.timer_camera.timeout.connect(self.show_camera)
 
-        # 自动选择设备（GPU 或 CPU）
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'  # 自动选择 GPU 或 CPU
-        self.model = YOLO(r'D:\KK\ultralytics-main_first\yolov8l-pose.pt').to(device)  # 加载模型到相应的设备
+        # Automatically select the device (GPU or CPU)
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'  
+        self.model = YOLO(r'D:\KK\ultralytics-main_first\yolov8l-pose.pt').to(device)  
         # self.model = YOLO(r"E:\AIGC\ComfyUI-aki-v1.4\runs\pose\train88\weights\best.pt").to(device)
-        # 要处理的视频帧图片队列，目前就放1帧图片
+        # The video frame image queue to be processed currently holds only one frame of image
         self.frameToAnalyze = []
 
-        # 启动处理视频帧独立线程
+        # Start the independent thread for processing video frames
         Thread(target=self.frameAnalyzeThreadFunc,daemon=True).start()
 
 
-        # 定义定时器，用于控制显示视频文件的帧率
+        # Define a timer to control the frame rate of the displayed video file
         self.timer_videoFile = QtCore.QTimer()
-        # 定时到了，回调 self.show_camera
+        
         self.timer_videoFile.timeout.connect(self.show_videoFile)
 
-        # 当前要播放的视频帧号
+        # The frame number of the video to be played currently
         self.vframeIdx = 0
 
-        # cv2.VideoCapture 实例
+        # cv2.VideoCapture 
         self.cap = None
 
         self.stopFlag = False
@@ -67,16 +67,16 @@ class MWindow(QtWidgets.QMainWindow):
 
         self.resize(1200, 800)
 
-        self.setWindowTitle('八段锦评分系统')
+        self.setWindowTitle('Baduanjin scoring System')
 
         # central Widget
         centralWidget = QtWidgets.QWidget(self)
         self.setCentralWidget(centralWidget)
 
-        # central Widget 里面的 主 layout
+        # The main layout in the central Widget
         mainLayout = QtWidgets.QVBoxLayout(centralWidget)
 
-        # 界面的上半部分 : 图形展示部分
+        # The upper part of the interface: the graphic display section
         topLayout = QtWidgets.QHBoxLayout()
         self.label_ori_video = QtWidgets.QLabel(self)
         self.label_treated = QtWidgets.QLabel(self)
@@ -92,7 +92,7 @@ class MWindow(QtWidgets.QMainWindow):
 
         mainLayout.addLayout(topLayout)
 
-        # 界面下半部分： 输出框 和 按钮
+        # The lower half of the interface: output boxes and buttons
         groupBox = QtWidgets.QGroupBox(self)
 
         bottomLayout =  QtWidgets.QHBoxLayout(groupBox)
@@ -102,11 +102,11 @@ class MWindow(QtWidgets.QMainWindow):
         mainLayout.addWidget(groupBox)
 
         btnLayout = QtWidgets.QVBoxLayout()
-        self.videoBtn = QtWidgets.QPushButton('🎞️视频文件')
-        self.camBtn   = QtWidgets.QPushButton('📹摄像头')
-        self.stopBtn  = QtWidgets.QPushButton('🛑停止')
-        self.score = QtWidgets.QPushButton('计算得分')
-        self.similarity = QtWidgets.QPushButton('关键帧相似度显示')
+        self.videoBtn = QtWidgets.QPushButton('🎞️Video file')
+        self.camBtn   = QtWidgets.QPushButton('📹Camera')
+        self.stopBtn  = QtWidgets.QPushButton('🛑stop')
+        self.score = QtWidgets.QPushButton('Calculate the score')
+        self.similarity = QtWidgets.QPushButton('Keyframe similarity display')
         btnLayout.addWidget(self.videoBtn)
         btnLayout.addWidget(self.camBtn)
         btnLayout.addWidget(self.stopBtn)
@@ -117,42 +117,39 @@ class MWindow(QtWidgets.QMainWindow):
 
     def startCamera(self):
 
-        # 参考 https://docs.opencv.org/3.4/dd/d43/tutorial_py_video_display.html
-
-        # 在 windows上指定使用 cv2.CAP_DSHOW 会让打开摄像头快很多， 
-        # 在 Linux/Mac上 指定 V4L, FFMPEG 或者 GSTREAMER
+       
         self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         if not self.cap.isOpened():
             print("1号摄像头不能打开")
             return
 
-        if self.timer_camera.isActive() == False:  # 若定时器未启动
+        if self.timer_camera.isActive() == False:  # If the timer is not started
             self.timer_camera.start(30)
             self.stopFlag = False
 
 
     def show_camera(self):
 
-        ret, frame = self.cap.read()  # 从视频流中读取
+        ret, frame = self.cap.read()  # Read from the video stream
         if not ret:
             return
 
 
-        # 把读到的帧的大小重新设置 
+        # Reset the size of the read frame
         frame = cv2.resize(frame, (520, 400))
 
         self.setFrameToOriLabel(frame)
 
     def setFrameToOriLabel(self,frame):
 
-        # 视频色彩转换回RGB，OpenCV images as BGR
+        # The video color is converted back to RGB, OpenCV images as BGR
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  
         qImage = QtGui.QImage(frame.data, frame.shape[1], frame.shape[0],
-                                 QtGui.QImage.Format_RGB888)  # 变成QImage形式
-        # 往显示视频的Label里 显示QImage
+                                 QtGui.QImage.Format_RGB888)  # 
+        
         self.label_ori_video.setPixmap(QtGui.QPixmap.fromImage(qImage)) 
 
-        # 如果当前没有处理任务
+        
         if not self.frameToAnalyze:
             self.frameToAnalyze.append(frame)
 
@@ -167,7 +164,7 @@ class MWindow(QtWidgets.QMainWindow):
 
             results = self.model(frame)[0]
 
-            """处理数据=============================================================="""
+            """Process data=============================================================="""
             if results:
                 for result in results:
                     boxes = result.boxes  # Boxes object for bounding box outputs
@@ -203,48 +200,48 @@ class MWindow(QtWidgets.QMainWindow):
 
 
 
-            """处理数据========================================================================"""
+            """Process data========================================================================"""
 
             img = results.plot(line_width=1)    
 
             qImage = QtGui.QImage(img.data, img.shape[1], img.shape[0],
-                                    QtGui.QImage.Format_RGB888)  # 变成QImage形式
+                                    QtGui.QImage.Format_RGB888)  
 
             if self.stopFlag == False:
-                self.label_treated.setPixmap(QtGui.QPixmap.fromImage(qImage))  # 往显示Label里 显示QImage
+                self.label_treated.setPixmap(QtGui.QPixmap.fromImage(qImage))  
 
             time.sleep(0.5)
 
 
 
     def stop(self, ):
-        self.stopFlag = True      # 让 frameAnalyzeThreadFunc 不要再设置 label_treated
-        self.timer_camera.stop()  # 关闭定时器
-        self.timer_videoFile.stop()  # 关闭定时器
+        self.stopFlag = True     
+        self.timer_camera.stop() 
+        self.timer_videoFile.stop()  
 
         if self.cap:
-            self.cap.release()  # 释放视频流
+            self.cap.release() 
 
-        # 清空视频显示区域 
+        
         self.label_ori_video.clear()        
         self.label_treated.clear()
 
         self.h = 0
         self.keypoints_array = []
-        # # 延时500ms清除，有的定时器处理任务可能会在当前时间点后处理完最后一帧
-        # QtCore.QTimer.singleShot(500, clearLabels)
+        
+        
 
 
     def startVideoFile(self):
 
-        # 先关闭原来打开的
+        # Close the one that was originally turned on first
         self.stop()
         self.textLog.clear()
         videoPath, _  = QtWidgets.QFileDialog.getOpenFileName(
-            self,             # 父窗口对象
-            "选择视频文件",        # 标题
-            ".",               # 起始目录
-            "图片类型 (*.mp4 *.avi)" # 选择类型过滤项，过滤内容在括号中
+            self,             
+            "Select the video file",       
+            ".",               
+            "Picture type (*.mp4 *.avi)" 
         )
 
         print('videoPath is', videoPath)
@@ -254,7 +251,7 @@ class MWindow(QtWidgets.QMainWindow):
 
         self.cap = cv2.VideoCapture(videoPath)
         if not self.cap.isOpened():
-            print("打开文件失败")
+            print("Failed to open the file")
             return
 
 
@@ -265,12 +262,12 @@ class MWindow(QtWidgets.QMainWindow):
 
 
     def show_videoFile(self):
-        # 选取视频帧位置，
+        # Select the position of the video frame，
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.vframeIdx)  
         self.vframeIdx += 1
-        ret, frame = self.cap.read()  # 从视频流中读取
+        ret, frame = self.cap.read()  
 
-        # 读取失败，应该是视频播放结束了
+        # The reading failed. It should be that the video playback has ended
         if not ret:
             self.keypoints_array = np.array(self.keypoints_array)
             # print(keypoints_array)
@@ -282,42 +279,42 @@ class MWindow(QtWidgets.QMainWindow):
 
             # self.stop()
             return
-        # 把读到的帧的大小重新设置
+       
         frame = cv2.resize(frame, (520, 300))
         self.setFrameToOriLabel(frame)
 
     def sim(self, ):
         count = self.count
-        # 设置中文字体
-        plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置为黑体
-        plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+        
+        plt.rcParams['font.sans-serif'] = ['SimHei']  
+        plt.rcParams['axes.unicode_minus'] = False 
 
-        # 绘制图形
-        plt.title("单帧相似度对比结果")
-        plt.xlabel("肢体向量段")
-        plt.ylabel("分数")
+        # Draw graphics
+        plt.title("Single-frame similarity comparison result")
+        plt.xlabel("Limb vector segment")
+        plt.ylabel("score")
         list = self.list[:-1]
         y = list / count
         self.count = 0
         self.list = []
-        # 示例数据
+      
         x = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13', 'v14', 'v15', 'v16']
 
-        # 绘制柱状图
+        # Draw the bar chart
         plt.bar(x, y)
 
-        # 给定目录
-        output_directory = r'D:\KK\bdjdatastes'  # 替换为你希望保存图形的文件夹路径
+        
+        output_directory = r'D:\KK\bdjdatastes' 
         if not os.path.exists(output_directory):
-            os.makedirs(output_directory)  # 如果目录不存在则创建
+            os.makedirs(output_directory) 
 
-        # 保存图像到指定目录
-        output_file = os.path.join(output_directory, 'similarity_comparison.png')  # 设置文件名和路径
+        
+        output_file = os.path.join(output_directory, 'similarity_comparison.png')  
         plt.savefig(output_file)
 
-        print(f"图像已保存到 {output_file}")
+        
 
-        # 显示图形
+       
         plt.show()
 
         return 0
